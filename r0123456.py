@@ -1,10 +1,11 @@
+from typing import NamedTuple
+
 import numpy as np
 
 import Reporter
 
-# Modify the class name to match your student number.
 
-class Individual:
+class Individual(NamedTuple):
     tour: list[int]
     cost: float
 
@@ -13,12 +14,46 @@ class r0123456:
     def __init__(self):
         self.reporter = Reporter.Reporter(self.__class__.__name__)
 
+    def initial_population(self, distanceMatrix, n: int) -> list[Individual]:
+        problem_size = distanceMatrix.shape[0]
+        individuals = []
+        for i in range(n):
+            tour = np.random.default_rng().permutation(problem_size)
+            cost = self.cost(tour, distanceMatrix)
+            new_individual = Individual(tour=tour, cost=cost)
+            individuals.append(new_individual)
+        return individuals
 
-    def initial_population(self, distanceMatrix, n:int) -> list[Individual]:
-        pass
+    def cost(self, tour: list[int], distanceMatrix) -> float:
+        result = 0
+        for city_idx in range(len(tour)):
+            next_city_idx = (city_idx + 1) % len(tour)
+            edge = tour[city_idx], tour[next_city_idx]
+            edge_cost = distanceMatrix[edge]
+            result += edge_cost
+        return result
 
     def parent_selection(self, population: list[Individual], n: int) -> list[Individual]:
+        # Ignacio
         pass
+
+    def crossover(self, parents: list[Individual], n: int) -> list[Individual]:
+        # Morph
+        pass
+
+    def mutate(self, offspring: list[Individual]) -> list[Individual]:
+        # Ignacio
+        pass
+
+    def selection(
+        self,
+        population: list[Individual],
+        offspring: list[Individual],
+        n: int
+        ) -> list[Individual]:
+        # Wai Chung
+        pass
+
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename):
