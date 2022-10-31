@@ -4,6 +4,8 @@ import numpy as np
 
 import Reporter
 
+rng = np.random.default_rng(seed=123)
+
 
 class Individual(NamedTuple):
     tour: list[int]
@@ -25,25 +27,45 @@ class r0123456:
         return individuals
 
     def cost(self, tour: list[int], distanceMatrix) -> float:
-        result = 0
-        for city_idx in range(len(tour)):
-            next_city_idx = (city_idx + 1) % len(tour)
-            edge = tour[city_idx], tour[next_city_idx]
-            edge_cost = distanceMatrix[edge]
-            result += edge_cost
-        return result
+        return np.sum(distanceMatrix[tour, np.roll(tour, -1)])
 
-    def parent_selection(self, population: list[Individual], n: int) -> list[Individual]:
-        # Ignacio
-        pass
+    def parent_selection(
+        self, population: list[Individual], n: int
+    ) -> list[Individual]:
+        """Random parent selection with size N"""
+        return rng.choice(population, n)
 
     def crossover(self, parents: list[Individual], n: int) -> list[Individual]:
         # Morph
         pass
 
-    def mutate(self, offspring: list[Individual]) -> list[Individual]:
-        # Ignacio
-        pass
+    def calculate_tour_cost(self, distanceMatrix, tour) -> float:
+        cost = 0
+        for city_idx in range(-1, len(tour)):
+            next_city_idx = (city_idx+1) % len(tour)
+            cost += distanceMatrix[city_idx, next_city_idx]
+        return cost
+
+    def mutate(
+        self, distanceMatrix, offspring: list[Individual]
+    ) -> list[Individual]:
+        """Mutation using edge"""
+
+        mutation_rate = 0.3
+
+        new_offspring = []
+        for o in offspring:
+            if rng.random() > mutation_rate:
+                new_offspring.append(o)
+                continue
+
+            a, b = rng.choice(len(o.tour), 2, replace=False)
+            tour = np.array(o.tour)
+            tour[b], tour[a] = tour[a], tour[b]
+
+            tour_cost = self.cost(distanceMatrix, tour)
+            new_offspring.append(Individual(tour, tour_cost))
+        return new_offspring
 
     def selection(
         self,
@@ -53,7 +75,6 @@ class r0123456:
         ) -> list[Individual]:
         # Wai Chung
         pass
-
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename):
@@ -70,7 +91,7 @@ class r0123456:
             # parents is a list of cycles, costs is a list of real numbers
             parents = self.parent_selection(population, n=50)
             offspring = self.crossover(parents, n=50)
-            new_offspring = self.mutate(offspring)
+            new_offspring = self.mutate(distanceMatrix, offspring)
             population = self.selection(population, new_offspring, n=50)
 
             meanObjective = np.mean([ individual.cost for individual in population])
