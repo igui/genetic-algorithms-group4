@@ -37,19 +37,21 @@ class r0123456:
 
     def non_wrapping_ordered_crossover(parent1, parent2):
         cp1 = np.random.randint(len(parent1) - 1)
-        cp2 = np.random.randint(cp1, len(parent1) + 1)
+        cp2 = np.random.randint(cp1 + 1, len(parent1))
         child1 = [n for n in parent1 if n not in parent2[cp1:cp2]]
         child2 = [n for n in parent2 if n not in parent1[cp1:cp2]]
         child1 = child1[:cp1] + parent2[cp1:cp2] + child1[cp1:]
-        child2 = child2[:cp1] + parent2[cp1:cp2] + child2[:cp2]
-        return child1, child2
+        child2 = child2[:cp1] + parent1[cp1:cp2] + child2[cp1:]
+        return [child1, child2]
 
-    def crossover(self, parents: list[Individual], n: int) -> list[Individual]:
+    def crossover(parents):
         # Morph
         # choose even number parents
         l = len(parents)
         pair_list = list(zip(parents[::2], parents[1::2]))
-        children = [non_wrapping_ordered_crossover(parent1, parent2) for (parent1, parent2) in pair_list]
+        children = []
+        for i in range(len(pair_list)):
+            children.extend(non_wrapping_ordered_crossover(pair_list[i][0], pair_list[i][1]))
         return children
 
     def calculate_tour_cost(self, distanceMatrix, tour) -> float:
