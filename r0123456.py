@@ -103,7 +103,8 @@ class r0123456:
         new_population = []
         for i in range(n):
             idx_sampled = rng.choice(len(pool), k, replace=False)  # k-tournament
-            pool_subset = sorted(pool[idx_sampled], key=lambda x: x.cost)
+            pool_sampled = [pool[idx] for idx in idx_sampled]
+            pool_subset = sorted(pool_sampled, key=lambda x: x.cost)
             new_population.append(pool_subset[0])
         return new_population
 
