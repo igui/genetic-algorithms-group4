@@ -44,7 +44,7 @@ class r0123456:
         pt2 = list(parent2.tour)
         cp1 = np.random.randint(len(pt1) - 1)
         cp2 = np.random.randint(cp1 + 1, len(pt1))
-        ct1 = [n for n in pt1 if n not in pt2[cp1:cp2]] 
+        ct1 = [n for n in pt1 if n not in pt2[cp1:cp2]]
         ct2 = [n for n in pt2 if n not in pt1[cp1:cp2]]
         ct1 = ct1[:cp1] + pt2[cp1:cp2] + ct1[cp1:]
         ct2 = ct2[:cp1] + pt1[cp1:cp2] + ct2[cp1:]
@@ -129,7 +129,16 @@ class r0123456:
             new_offspring = self.mutate(distanceMatrix, offspring)
             population = self.selection(population, new_offspring, n=50, k=3)
 
-            meanObjective = np.mean([ individual.cost for individual in population])
+            meanObjective = np.mean([
+                individual.cost for individual in population
+                if np.isfinite(individual.cost)
+            ])
+            valid = sum((
+                1
+                for individual in population
+                if np.isfinite(individual.cost)
+            ))
+
             bestIdx = np.argmin([ individual.cost for individual in population])
 
             bestObjective = population[bestIdx].cost
@@ -143,7 +152,11 @@ class r0123456:
             #    with city numbering starting from 0
             timeLeft = self.reporter.report(
                 meanObjective, bestObjective, bestSolution)
-            print(f'We have {timeLeft} seconds left! :o')
+            print(
+                'Best / mean(only finite) / valid '
+                f'{bestObjective:.0f} / {meanObjective:.0f} / {valid}  -- '
+                f'{timeLeft:.1f} seconds left!'
+            )
             if timeLeft < 0:
                 break
 
