@@ -30,7 +30,7 @@ class r0123456:
         return np.sum(distanceMatrix[tour, np.roll(tour, -1)])
 
     def parent_selection(
-        self, population: list[Individual], n: int
+            self, population: list[Individual], n: int
     ) -> list[Individual]:
         """Random parent selection with size N"""
         return rng.choice(population, n)
@@ -62,7 +62,7 @@ class r0123456:
         return cost
 
     def mutate(
-        self, distanceMatrix, offspring: list[Individual]
+            self, distanceMatrix, offspring: list[Individual]
     ) -> list[Individual]:
         """Mutation using edge"""
 
@@ -83,13 +83,20 @@ class r0123456:
         return new_offspring
 
     def selection(
-        self,
-        population: list[Individual],
-        offspring: list[Individual],
-        n: int
-        ) -> list[Individual]:
-        # Wai Chung
-        pass
+            self,
+            population: list[Individual],
+            offspring: list[Individual],
+            n: int,
+            k: int
+    ) -> list[Individual]:
+        # k-tournament
+        pool = population + offspring
+        new_population = []
+        for i in range(n):
+            idx_sampled = rng.choice(len(pool), k, replace=False)  # k-tournament
+            pool_subset = sorted(pool[idx_sampled], key=lambda x: x.cost)
+            new_population.append(pool_subset[0])
+        return new_population
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename):
@@ -105,7 +112,7 @@ class r0123456:
             # Your code here.
             # parents is a list of cycles, costs is a list of real numbers
             parents = self.parent_selection(population, n=50)
-            offspring = self.crossover(parents, n=50)
+            offspring = self.crossover(parents, n=50, k=3)
             new_offspring = self.mutate(distanceMatrix, offspring)
             population = self.selection(population, new_offspring, n=50)
 
