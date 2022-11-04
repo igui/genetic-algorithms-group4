@@ -37,12 +37,16 @@ class r0123456:
 
     @staticmethod
     def non_wrapping_ordered_crossover(parent1, parent2):
-        cp1 = np.random.randint(len(parent1) - 1)
-        cp2 = np.random.randint(cp1 + 1, len(parent1))
-        child1 = [n for n in parent1 if n not in parent2[cp1:cp2]]
-        child2 = [n for n in parent2 if n not in parent1[cp1:cp2]]
-        child1 = child1[:cp1] + parent2[cp1:cp2] + child1[cp1:]
-        child2 = child2[:cp1] + parent1[cp1:cp2] + child2[cp1:]
+        pt1 = parent1.tour
+        pt2 = parent2.tour
+        cp1 = np.random.randint(len(pt1) - 1)
+        cp2 = np.random.randint(cp1 + 1, len(pt1))
+        ct1 = [n for n in pt1 if n not in pt2[cp1:cp2]]
+        ct2 = [n for n in pt2 if n not in pt1[cp1:cp2]]
+        ct1 = ct1[:cp1] + pt2[cp1:cp2] + ct1[cp1:]
+        ct2 = ct2[:cp1] + pt1[cp1:cp2] + ct2[cp1:]
+        child1 = Individual(tour = ct1)
+        child2 = Indivudual(tour = ct2)
         return [child1, child2]
 
     def crossover(self, parents):
