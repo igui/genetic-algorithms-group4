@@ -35,6 +35,7 @@ class r0123456:
         """Random parent selection with size N"""
         return rng.choice(population, n)
 
+    @staticmethod
     def non_wrapping_ordered_crossover(parent1, parent2):
         cp1 = np.random.randint(len(parent1) - 1)
         cp2 = np.random.randint(cp1 + 1, len(parent1))
@@ -44,14 +45,17 @@ class r0123456:
         child2 = child2[:cp1] + parent1[cp1:cp2] + child2[cp1:]
         return [child1, child2]
 
-    def crossover(parents):
+    def crossover(self, parents):
         # Morph
         # choose even number parents
-        l = len(parents)
         pair_list = list(zip(parents[::2], parents[1::2]))
         children = []
         for i in range(len(pair_list)):
-            children.extend(non_wrapping_ordered_crossover(pair_list[i][0], pair_list[i][1]))
+            children.extend(
+                self.non_wrapping_ordered_crossover(
+                    pair_list[i][0], pair_list[i][1]
+                )
+            )
         return children
 
     def calculate_tour_cost(self, distanceMatrix, tour) -> float:
@@ -111,8 +115,8 @@ class r0123456:
         while True:
             # Your code here.
             # parents is a list of cycles, costs is a list of real numbers
-            parents = self.parent_selection(population, n=50)
-            offspring = self.crossover(parents, n=50, k=3)
+            parents = self.parent_selection(population, n=2*50)
+            offspring = self.crossover(parents)
             new_offspring = self.mutate(distanceMatrix, offspring)
             population = self.selection(population, new_offspring, n=50)
 
