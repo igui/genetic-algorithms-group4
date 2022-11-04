@@ -39,32 +39,20 @@ class r0123456:
         ]
 
     @staticmethod
-<<<<<<< HEAD
-    def non_wrapping_ordered_crossover(parent1, parent2):
-        pt1 = parent1.tour
-        pt2 = parent2.tour
+    def non_wrapping_ordered_crossover(parent1, parent2, distanceMatrix):
+        pt1 = list(parent1.tour)
+        pt2 = list(parent2.tour)
         cp1 = np.random.randint(len(pt1) - 1)
         cp2 = np.random.randint(cp1 + 1, len(pt1))
-        ct1 = [n for n in pt1 if n not in pt2[cp1:cp2]]
+        ct1 = [n for n in pt1 if n not in pt2[cp1:cp2]] 
         ct2 = [n for n in pt2 if n not in pt1[cp1:cp2]]
         ct1 = ct1[:cp1] + pt2[cp1:cp2] + ct1[cp1:]
         ct2 = ct2[:cp1] + pt1[cp1:cp2] + ct2[cp1:]
-        child1 = Individual(tour = ct1)
-        child2 = Indivudual(tour = ct2)
-=======
-    def non_wrapping_ordered_crossover(
-            parent1: Individual, parent2: Individual
-    ) -> tuple[Individual, Individual]:
-        cp1 = np.random.randint(len(parent1) - 1)
-        cp2 = np.random.randint(cp1 + 1, len(parent1))
-        child1 = [n for n in parent1 if n not in parent2[cp1:cp2]]
-        child2 = [n for n in parent2 if n not in parent1[cp1:cp2]]
-        child1 = child1[:cp1] + parent2[cp1:cp2] + child1[cp1:]
-        child2 = child2[:cp1] + parent1[cp1:cp2] + child2[cp1:]
->>>>>>> ae8e8fca2b8ef9f9144e79415ee48210d6fc0d9d
+        child1 = Individual(tour = ct1, cost = r0123456.calculate_tour_cost(distanceMatrix, ct1))
+        child2 = Individual(tour = ct2, cost = r0123456.calculate_tour_cost(distanceMatrix, ct2))
         return [child1, child2]
 
-    def crossover(self, parents: list[Individual]):
+    def crossover(self, parents: list[Individual], distanceMatrix):
         # Morph
         # choose even number parents
         pair_list = list(zip(parents[::2], parents[1::2]))
@@ -72,12 +60,13 @@ class r0123456:
         for i in range(len(pair_list)):
             children.extend(
                 self.non_wrapping_ordered_crossover(
-                    pair_list[i][0], pair_list[i][1]
+                    pair_list[i][0], pair_list[i][1], distanceMatrix
                 )
             )
         return children
 
-    def calculate_tour_cost(self, distanceMatrix, tour) -> float:
+    @staticmethod
+    def calculate_tour_cost(distanceMatrix, tour) -> float:
         cost = 0
         for city_idx in range(-1, len(tour)):
             next_city_idx = (city_idx+1) % len(tour)
@@ -136,7 +125,7 @@ class r0123456:
             # Your code here.
             # parents is a list of cycles, costs is a list of real numbers
             parents = self.parent_selection(population, n=2*50)
-            offspring = parents #self.crossover(parents)
+            offspring = self.crossover(parents, distanceMatrix)
             new_offspring = self.mutate(distanceMatrix, offspring)
             population = self.selection(population, new_offspring, n=50, k=3)
 
