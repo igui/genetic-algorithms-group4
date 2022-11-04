@@ -1,3 +1,4 @@
+import random
 from typing import NamedTuple
 
 import numpy as np
@@ -33,10 +34,14 @@ class r0123456:
             self, population: list[Individual], n: int
     ) -> list[Individual]:
         """Random parent selection with size N"""
-        return rng.choice(population, n)
+        return [
+            random.choice(population) for _ in range(n)
+        ]
 
     @staticmethod
-    def non_wrapping_ordered_crossover(parent1, parent2):
+    def non_wrapping_ordered_crossover(
+            parent1: Individual, parent2: Individual
+    ) -> tuple[Individual, Individual]:
         cp1 = np.random.randint(len(parent1) - 1)
         cp2 = np.random.randint(cp1 + 1, len(parent1))
         child1 = [n for n in parent1 if n not in parent2[cp1:cp2]]
@@ -45,7 +50,7 @@ class r0123456:
         child2 = child2[:cp1] + parent1[cp1:cp2] + child2[cp1:]
         return [child1, child2]
 
-    def crossover(self, parents):
+    def crossover(self, parents: list[Individual]):
         # Morph
         # choose even number parents
         pair_list = list(zip(parents[::2], parents[1::2]))
@@ -82,7 +87,7 @@ class r0123456:
             tour = np.array(o.tour)
             tour[b], tour[a] = tour[a], tour[b]
 
-            tour_cost = self.cost(distanceMatrix, tour)
+            tour_cost = self.cost(tour, distanceMatrix)
             new_offspring.append(Individual(tour, tour_cost))
         return new_offspring
 
@@ -116,9 +121,9 @@ class r0123456:
             # Your code here.
             # parents is a list of cycles, costs is a list of real numbers
             parents = self.parent_selection(population, n=2*50)
-            offspring = self.crossover(parents)
+            offspring = parents #self.crossover(parents)
             new_offspring = self.mutate(distanceMatrix, offspring)
-            population = self.selection(population, new_offspring, n=50)
+            population = self.selection(population, new_offspring, n=50, k=3)
 
             meanObjective = np.mean([ individual.cost for individual in population])
             bestIdx = np.argmin([ individual.cost for individual in population])
