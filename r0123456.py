@@ -39,10 +39,27 @@ class r0123456:
         ]
 
     @staticmethod
+    def ordered_crossover(parent1, parent2, distanceMatrix):
+        pt1 = list(parent1.tour)
+        pt2 = list(parent2.tour)
+        l = len(pt1)
+        cp1 = np.random.randint(0, len(pt1) - 1)
+        cp2 = np.random.randint(cp1 + 1, len(pt1))
+        pt1_relative_order = pt1[cp2:] + pt1[:cp2]
+        pt2_relative_order = pt2[cp2:] + pt2[:cp2]
+        ct1 = [n for n in pt1_relative_order if n not in pt2[cp1:cp2]]
+        ct2 = [n for n in pt2_relative_order if n not in pt1[cp1:cp2]]
+        ct1 = ct1[l - cp2:] + pt2[cp1:cp2] + ct1[:l - cp2]
+        ct2 = ct2[l - cp2:] + pt1[cp1:cp2] + ct2[:l - cp2]
+        child1 = Individual(tour = ct1, cost = r0123456.calculate_tour_cost(distanceMatrix, ct1))
+        child2 = Individual(tour = ct2, cost = r0123456.calculate_tour_cost(distanceMatrix, ct2))
+        return [child1, child2]
+
+    @staticmethod
     def non_wrapping_ordered_crossover(parent1, parent2, distanceMatrix):
         pt1 = list(parent1.tour)
         pt2 = list(parent2.tour)
-        cp1 = np.random.randint(len(pt1) - 1)
+        cp1 = np.random.randint(0, len(pt1) - 1)
         cp2 = np.random.randint(cp1 + 1, len(pt1))
         ct1 = [n for n in pt1 if n not in pt2[cp1:cp2]]
         ct2 = [n for n in pt2 if n not in pt1[cp1:cp2]]
@@ -59,7 +76,7 @@ class r0123456:
         children = []
         for i in range(len(pair_list)):
             children.extend(
-                self.non_wrapping_ordered_crossover(
+                self.ordered_crossover(
                     pair_list[i][0], pair_list[i][1], distanceMatrix
                 )
             )
@@ -124,7 +141,7 @@ class r0123456:
         while True:
             # Your code here.
             # parents is a list of cycles, costs is a list of real numbers
-            parents = self.parent_selection(population, n=2*50)
+            parents = self.parent_selection(population, n=50)
             offspring = self.crossover(parents, distanceMatrix)
             new_offspring = self.mutate(distanceMatrix, offspring)
             population = self.selection(population, new_offspring, n=50, k=3)
